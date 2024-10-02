@@ -1,33 +1,30 @@
-# Use the Red Hat UBI Minimal Nginx base image
-FROM registry.access.redhat.com/ubi8/nginx-120:latest
+# Use the Red Hat UBI HTTPD base image
+FROM registry.access.redhat.com/ubi8/httpd-24:latest
 
 # Set environment variables for user and group
 ENV USERNAME=myuser
 ENV USERID=1001
+ENV GROUPID=1001
 
-# Create a user with specified UID and add to root group (run as root)
+# Create a group and user with specified UID and GID
 USER root
-
-RUN useradd -u ${USERID} -g 0 -m ${USERNAME} || echo "User ${USERNAME} already exists"
+RUN groupadd -g ${GROUPID} ${USERNAME} && \
+    useradd -u ${USERID} -g ${GROUPID} -m ${USERNAME}
 
 # Set the working directory
+WORKDIR /usr/share/httpd/html
 
-# Ensure proper permissions for Nginx
-RUN chown -R ${USERID}:${USERID} /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
+# Create an index.html file with "Hello, World!"
+RUN echo "<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello, World!</h1></body></html>" > index.html
 
-WORKDIR /usr/share/nginx/html
-
-# Create a temporary file and then copy it to the Nginx directory
-RUN echo "<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello, World!</h1></body></html>" > /tmp/index.html && \
-    cp /tmp/index.html index.html && \
-    chown ${USERID}:0 index.html
+# Change ownership of files
+RUN chown -R ${USERNAME}:${GROUPID} /usr/share/httpd/html
 
 # Switch to the non-root user
 USER ${USERNAME}
 
-# Expose the Nginx default port
-EXPOSE 80
+# Expose the HTTP port
+EXPOSE 8080
 
-# Specify the command to run Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Command to run Apache HTTPD
+CMD ["httpd", "-D", "FOREGROUND"]
