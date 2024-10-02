@@ -2,7 +2,7 @@
 FROM registry.access.redhat.com/ubi8/httpd-24:latest
 
 # Set environment variables for user and group
-ENV USERNAME=myuser
+ENV USERNAME=myhttpduser
 ENV USERID=1001
 ENV GROUPID=1001
 
