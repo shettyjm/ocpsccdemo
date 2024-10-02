@@ -11,6 +11,11 @@ USER root
 RUN useradd -u ${USERID} -g 0 -m ${USERNAME} || echo "User ${USERNAME} already exists"
 
 # Set the working directory
+
+# Ensure proper permissions for Nginx
+RUN chown -R ${USERID}:${USERID} /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
 WORKDIR /usr/share/nginx/html
 
 # Create a temporary file and then copy it to the Nginx directory
