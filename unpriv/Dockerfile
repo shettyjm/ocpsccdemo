@@ -5,17 +5,18 @@ FROM registry.access.redhat.com/ubi8/nginx-120:latest
 ENV USERNAME=myuser
 ENV USERID=1001
 
-# Create a user with specified UID and add to root group
-RUN useradd -u ${USERID} -g 0 -m ${USERNAME} || true
+# Create a user with specified UID and add to root group (run as root)
+USER root
+
+RUN useradd -u ${USERID} -g 0 -m ${USERNAME} || echo "User ${USERNAME} already exists"
 
 # Set the working directory
 WORKDIR /usr/share/nginx/html
 
-# Create an index.html file with "Hello, World!"
-RUN echo "<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello, World!</h1></body></html>" > index.html
-
-# Change ownership of the application files
-RUN chown -R ${USERID}:0 /usr/share/nginx/html
+# Create a temporary file and then copy it to the Nginx directory
+RUN echo "<!DOCTYPE html><html><head><title>Hello World</title></head><body><h1>Hello, World!</h1></body></html>" > /tmp/index.html && \
+    cp /tmp/index.html index.html && \
+    chown ${USERID}:0 index.html
 
 # Switch to the non-root user
 USER ${USERNAME}
