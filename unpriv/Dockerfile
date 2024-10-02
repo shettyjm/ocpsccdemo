@@ -8,8 +8,8 @@ ENV USERID=1001
 ENV GROUPID=1001
 
 # Install necessary utilities for user management
-RUN microdnf install -y shadow-utils && \
-    microdnf clean all
+RUN dnf install -y shadow-utils && \
+    dnf clean all
 
 # Create a group and a user with specified UID and GID
 RUN groupadd -g ${GROUPID} ${GROUPNAME} && \
