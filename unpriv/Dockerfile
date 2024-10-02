@@ -6,10 +6,10 @@ ENV USERNAME=myuser
 ENV USERID=1001
 ENV GROUPID=1001
 
-# Create a group and user with specified UID and GID
 USER root
-RUN groupadd -g ${GROUPID} ${USERNAME} && \
-    useradd -u ${USERID} -g ${GROUPID} -m ${USERNAME}
+# Create a group and user with specified UID and GID (if they do not already exist)
+RUN groupadd -g ${GROUPID} ${USERNAME} || echo "Group ${USERNAME} already exists" && \
+    useradd -u ${USERID} -g ${GROUPID} -m ${USERNAME} || echo "User ${USERNAME} already exists"
 
 # Set the working directory
 WORKDIR /usr/share/httpd/html
